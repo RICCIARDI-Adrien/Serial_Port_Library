@@ -5,6 +5,7 @@
  * @version 1.1 : 25/02/2013, added Windows support (which does not save and restore previous parameters as UNIX version does).
  * @version 1.2 : 21/03/2015, splitted the supported operating system drivers in several files.
  * @version 1.3 : 14/05/2016, allowed multiple serial ports to be handled by the library.
+ * @version 1.4 : 31/07/2018, added parity support.
  */
 #ifndef H_SERIAL_PORT_H
 #define H_SERIAL_PORT_H
@@ -33,17 +34,26 @@
 	typedef int TSerialPortID;
 #endif
 
+/** Available parity modes. */
+typedef enum
+{
+	SERIAL_PORT_PARITY_NONE, //!< No parity bit.
+	SERIAL_PORT_PARITY_EVEN, //!< Even parity.
+	SERIAL_PORT_PARITY_ODD //!< Odd parity.
+} TSerialPortParity;
+
 //-------------------------------------------------------------------------------------------------
 // Functions
 //-------------------------------------------------------------------------------------------------
 /** Initialize the specified serial port at the specified baud rate, 8 data bits, no parity, 1 stop bit.
  * @param String_Device_File_Name The name of the serial device, like "/dev/ttyS0" or "COM1".
  * @param Baud_Rate The desired baud rate. The function may fail if this is not a standard value.
+ * @param Parity The parity mode to use.
  * @param Pointer_Serial_Port_ID On output, contain the opened serial port identifier.
  * @return 0 if the serial port was correctly initialized,
  * @return -1 if an error happened. Use errno to find the error.
  */
-int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSerialPortID *Pointer_Serial_Port_ID);
+int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSerialPortParity Parity, TSerialPortID *Pointer_Serial_Port_ID);
 
 /** Read a byte from the specified serial port.
  * @param Serial_Port_ID The serial port to read from.

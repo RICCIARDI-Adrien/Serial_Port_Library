@@ -15,7 +15,7 @@
 //-------------------------------------------------------------------------------------------------
 // Public functions
 //-------------------------------------------------------------------------------------------------
-int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSerialPortID *Pointer_Serial_Port_ID)
+int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSerialPortParity Parity, TSerialPortID *Pointer_Serial_Port_ID)
 {
 	struct termios Serial_Port_Parameters;
 	speed_t Speed;
@@ -111,10 +111,29 @@ int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSeria
 	
 	// Configure new parameters
 	memset(&Serial_Port_Parameters, 0, sizeof(Serial_Port_Parameters));
-	Serial_Port_Parameters.c_iflag = IGNBRK | IGNPAR; // Ignore break, no parity
+	Serial_Port_Parameters.c_iflag = IGNBRK | IGNPAR; // Ignore break and parity errors
 	Serial_Port_Parameters.c_oflag = 0;
 	Serial_Port_Parameters.c_cflag = CS8 | CREAD | CLOCAL; // 8 data bits, receiver enabled, ignore modem control lines
 	Serial_Port_Parameters.c_lflag = 0; // Use raw mode
+	
+	// Set requested parity
+	switch (Parity)
+	{
+		case SERIAL_PORT_PARITY_NONE:
+			break;
+			
+		case SERIAL_PORT_PARITY_EVEN:
+			Serial_Port_Parameters.c_cflag |= PARENB;
+			break;
+			
+		case SERIAL_PORT_PARITY_ODD:
+			Serial_Port_Parameters.c_cflag |= PARENB | PARODD;
+			break;
+			
+		default:
+			errno = EINVAL;
+			goto Exit_Error;
+	}
 	
 	// Set speeds
 	if (cfsetispeed(&Serial_Port_Parameters, Speed) == -1) goto Exit_Error;

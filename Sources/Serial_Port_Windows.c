@@ -10,7 +10,7 @@
 //-------------------------------------------------------------------------------------------------
 // Public functions
 //-------------------------------------------------------------------------------------------------
-int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSerialPortID *Pointer_Serial_Port_ID)
+int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSerialPortParity Parity, TSerialPortID *Pointer_Serial_Port_ID)
 {
 	HANDLE COM_Handle;
 	DCB COM_Parameters;
@@ -27,7 +27,6 @@ int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSeria
 	// Configure port
 	COM_Parameters.DCBlength = sizeof(DCB);
     COM_Parameters.fBinary = 1; // Must be set to 1 or Windows becomes angry
-	COM_Parameters.fParity = 0; // No parity
 	// Ignore modem signals
 	COM_Parameters.fOutxCtsFlow = 0; 
 	COM_Parameters.fOutxDsrFlow = 0;
@@ -45,7 +44,6 @@ int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSeria
 	COM_Parameters.XonLim = 0;
 	COM_Parameters.XoffLim = 0;
 	COM_Parameters.ByteSize = 8; // 8 bits of data
-	COM_Parameters.Parity = NOPARITY; // Parity check disabled
 	COM_Parameters.StopBits = ONESTOPBIT;
 	COM_Parameters.XonChar = 0;
 	COM_Parameters.XoffChar = 0;
@@ -53,6 +51,29 @@ int SerialPortOpen(char *String_Device_File_Name, unsigned int Baud_Rate, TSeria
 	COM_Parameters.EofChar = 0;
 	COM_Parameters.EvtChar = 0;
 	COM_Parameters.wReserved1 = 0;
+	
+	// Set requested parity
+	switch (Parity)
+	{
+		case SERIAL_PORT_PARITY_NONE:
+			COM_Parameters.fParity = 0; // Disable parity checking
+			COM_Parameters.Parity = NOPARITY;
+			break;
+			
+		case SERIAL_PORT_PARITY_EVEN:
+			COM_Parameters.fParity = 1; // Enable parity checking
+			COM_Parameters.Parity = EVENPARITY;
+			break;
+			
+		case SERIAL_PORT_PARITY_ODD:
+			COM_Parameters.fParity = 1; // Enable parity checking
+			COM_Parameters.Parity = ODDPARITY;
+			break;
+			
+		default:
+			CloseHandle(COM_Handle);
+			return -1;
+	}
 	
 	// Set transmit and receive speed
 	COM_Parameters.BaudRate = Baud_Rate;
