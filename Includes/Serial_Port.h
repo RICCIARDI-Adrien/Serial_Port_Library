@@ -6,6 +6,7 @@
  * @version 1.2 : 21/03/2015, splitted the supported operating system drivers in several files.
  * @version 1.3 : 14/05/2016, allowed multiple serial ports to be handled by the library.
  * @version 1.4 : 31/07/2018, added parity support.
+ * @version 1.5 : 12/05/2022, added MIT license.
  */
 #ifndef H_SERIAL_PORT_H
 #define H_SERIAL_PORT_H
